@@ -424,7 +424,7 @@ function Capture.autocomplete_refile(arg_lead)
   end, target_headlines)
 
   return vim.tbl_filter(function(item)
-    return item:match(string.format('^%s', vim.pesc(arg_lead)))
+    return string.upper(item):match(string.upper(string.format('^%s', vim.pesc(arg_lead))))
   end, result)
 end
 
