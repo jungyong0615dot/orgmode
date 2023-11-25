@@ -386,7 +386,7 @@ function Capture.autocomplete_refile(arg_lead)
   if not arg_lead then
     return vim.tbl_keys(valid_filenames)
   end
-  local parts = vim.split(arg_lead, '/', true)
+  local parts = vim.split(arg_lead, '/', { plain = true, trimempty = false })
 
   local selected_file = valid_filenames[parts[1] .. '/']
 
@@ -402,9 +402,26 @@ function Capture.autocomplete_refile(arg_lead)
   end
 
   local headlines = agenda_file:get_opened_unfinished_headlines()
-  local result = vim.tbl_map(function(headline)
-    return string.format('%s/%s', vim.fn.fnamemodify(headline.file, ':t'), headline.title)
+  local target_level = #parts - 1
+
+  local target_headlines = vim.tbl_filter(function(headline)
+    if #parts == 2 then
+      return headline.level == target_level
+    elseif #parts > 2 then
+      return headline.level == target_level and headline.parent.title == parts[#parts-1]
+    end
+    return headline.level == target_level
   end, headlines)
+
+  local result = vim.tbl_map(function(headline)
+    if #parts == 2 then
+      return string.format('%s/%s', vim.fn.fnamemodify(headline.file, ':t'), headline.title)
+    elseif #parts > 2 then
+      local arg_lead_before = vim.fn.join(vim.list_slice(parts, 1, #parts - 1), '/')
+      return string.format('%s/%s', arg_lead_before, headline.title)
+    end
+    return string.format('%s/%s', vim.fn.fnamemodify(headline.file, ':t'), headline.title)
+  end, target_headlines)
 
   return vim.tbl_filter(function(item)
     return item:match(string.format('^%s', vim.pesc(arg_lead)))

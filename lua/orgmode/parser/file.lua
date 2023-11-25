@@ -258,7 +258,24 @@ end
 ---@param title string
 ---@return Section
 function File:find_headline_by_title(title, exact)
-  local headlines = self:find_headlines_by_title(title, exact)
+  local titles = vim.split(title, '/', { plain = true })
+  local target_title = nil
+  local headlines = {}
+  if #titles == 1 then
+    headlines = self:find_headlines_by_title(title, exact)
+    return headlines[1]
+  elseif #titles > 1 then
+    target_title = titles[#titles]
+    headlines = self:find_headlines_by_title(target_title, exact)
+    local results = vim.tbl_filter(function(headline)
+      if headline.parent == nil then
+        return false
+      else
+        return headline.parent.title == titles[#titles - 1]
+      end
+    end, headlines)
+    return results[1]
+  end
   return headlines[1]
 end
 
