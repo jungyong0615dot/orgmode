@@ -27,9 +27,9 @@ end
 ---@return table[]
 function ClockReport:draw_for_agenda(start_line)
   local data = {
-    { 'File', 'Headline', 'Time' },
+    { 'File', 'Headline', 'Time', 'Effort' },
     'hr',
-    { '', 'ALL Total time', self.total_duration:to_string() },
+    { '', 'ALL Total time', self.total_duration:to_string(), '0' },
     'hr',
   }
 
@@ -40,6 +40,7 @@ function ClockReport:draw_for_agenda(start_line)
         '',
         { value = headline.title, reference = headline },
         headline.logbook:get_total(self.from, self.to):to_string(),
+        '0',
       })
     end
     table.insert(data, 'hr')
@@ -52,6 +53,7 @@ function ClockReport:draw_for_agenda(start_line)
     local highlights = {}
     local prev_row = clock_table.rows[i - 1]
     if prev_row and prev_row.is_separator then
+
       for _, cell in ipairs(row.cells) do
         local range = cell.range:clone()
         range.end_col = range.end_col + 1
