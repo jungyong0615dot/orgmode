@@ -348,6 +348,10 @@ function File:get_clock_report(from, to)
         total_duration = total_duration + minutes
       end
     end
+    -- local eff = section:get_property('effort')
+    -- if eff then
+    --   table.insert(headlines, section)
+    -- end
   end
 
   return {

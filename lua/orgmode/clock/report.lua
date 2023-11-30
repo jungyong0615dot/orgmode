@@ -36,11 +36,17 @@ function ClockReport:draw_for_agenda(start_line)
   for _, file in ipairs(self.files) do
     table.insert(data, { { value = file.name, reference = file }, 'File time', file.total_duration:to_string() })
     for _, headline in ipairs(file.headlines) do
+      local effort = headline:get_property("effort") or "00:00"
+      local logbook = headline.logbook
+      local logbook_duration = "00:00"
+      if logbook then
+        logbook_duration = logbook:get_total(self.from, self.to):to_string()
+      end
       table.insert(data, {
         '',
         { value = headline.title, reference = headline },
-        headline.logbook:get_total(self.from, self.to):to_string(),
-        '0',
+        logbook_duration,
+        effort,
       })
     end
     table.insert(data, 'hr')

@@ -77,6 +77,17 @@ end
 
 function AgendaItem:_generate_data()
   self.label = self:_generate_label()
+  local headline = self.headline
+  local logbook = headline.logbook
+  local logbook_duration = "0:00"
+  if logbook then
+    logbook_duration = logbook:get_total():to_string()
+  end
+  local effort = headline:get_property("effort") or "00:00"
+
+
+  self.label = "[".. logbook_duration .. "/" .. effort .. "]" .. self.label
+
   self.highlights = {}
   local highlight = self:_generate_highlight()
   if highlight then
@@ -153,19 +164,19 @@ function AgendaItem:_generate_label()
   local time = self.headline_date:has_time() and add_padding(self:_format_time(self.headline_date)) or ''
   if self.headline_date:is_deadline() then
     if self.is_same_day then
-      return time .. 'Deadline:'
+      return time .. 'Dd:'
     end
     return self.headline_date:humanize(self.date) .. ':'
   end
 
   if self.headline_date:is_scheduled() then
     if self.is_same_day then
-      return time .. 'Scheduled:'
+      return time .. 'Schedule:'
     end
 
     local diff = math.abs(self.date:diff(self.headline_date))
 
-    return 'Sched. ' .. diff .. 'x:'
+    return 'Schd. ' .. diff .. 'x:'
   end
 
   if self.headline_date.is_date_range_start then
