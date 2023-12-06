@@ -380,6 +380,14 @@ function Agenda:goto_item()
   vim.cmd('edit ' .. vim.fn.fnameescape(item.file))
   vim.fn.cursor({ item.file_position, 0 })
   vim.cmd([[normal! zv]])
+
+  -- TODO: hide, not close
+  for _, win in ipairs(vim.api.nvim_list_wins()) do
+    if vim.api.nvim_buf_get_option(vim.api.nvim_win_get_buf(win), 'filetype') == 'orgagenda' then
+      vim.api.nvim_win_close(win, true)
+      return win
+    end
+  end
 end
 
 function Agenda:filter()

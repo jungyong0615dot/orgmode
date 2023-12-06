@@ -171,12 +171,12 @@ function AgendaItem:_generate_label()
 
   if self.headline_date:is_scheduled() then
     if self.is_same_day then
-      return time .. 'Schedule:'
+      return time .. 'S:'
     end
 
     local diff = math.abs(self.date:diff(self.headline_date))
 
-    return 'Schd. ' .. diff .. 'x:'
+    return 'S. ' .. diff .. 'x:'
   end
 
   if self.headline_date.is_date_range_start then
