@@ -407,6 +407,11 @@ function Headline:set_scheduled_date(date)
   return self:_add_date('SCHEDULED', date, true)
 end
 
+---@param date Date
+function Headline:set_scheduled_ts(date, range)
+  return self:_add_range('SCHEDULED', date, range, true)
+end
+
 ---@param date? Date
 function Headline:set_closed_date(date)
   local dates = self:dates()
@@ -535,6 +540,40 @@ end
 function Headline:_add_date(type, date, active)
   local dates = self:dates()
   local text = type .. ': ' .. date:to_wrapped_string(active)
+  if vim.tbl_isempty(dates) then
+    local indent = config:get_indent(self:level() + 1)
+    local start_line = self.headline:start()
+    vim.fn.append(start_line + 1, ('%s%s'):format(indent, text))
+    return self:refresh()
+  end
+  if dates[type] then
+    tree_utils.set_node_text(dates[type], text, true)
+    return self:refresh()
+  end
+
+  local keys = vim.tbl_keys(dates)
+  local other_types = vim.tbl_filter(function(t)
+    return t ~= type
+  end, { 'DEADLINE', 'SCHEDULED', 'CLOSED' })
+  local last_child = dates[keys[#keys]]
+  for _, date_type in ipairs(other_types) do
+    if dates[date_type] then
+      last_child = dates[date_type]
+      break
+    end
+  end
+  local ptext = ts.get_node_text(last_child, 0)
+  tree_utils.set_node_text(last_child, ptext .. ' ' .. text)
+  return self:refresh()
+end
+
+---@param type string | "DEADLINE" | "SCHEDULED" | "CLOSED"
+---@param date Date
+---@param active? boolean
+---@private
+function Headline:_add_range(type, date, range, active)
+  local dates = self:dates()
+  local text = type .. ': ' .. date:to_wrapped_string_with_range(active, range)
   if vim.tbl_isempty(dates) then
     local indent = config:get_indent(self:level() + 1)
     local start_line = self.headline:start()

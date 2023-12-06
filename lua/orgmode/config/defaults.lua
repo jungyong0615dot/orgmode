@@ -88,6 +88,7 @@ local DefaultConfig = {
       org_agenda_set_tags = '<prefix>t',
       org_agenda_deadline = '<prefix>id',
       org_agenda_schedule = '<prefix>is',
+      org_agenda_set_range = '<prefix>ir',
       org_agenda_filter = '/',
       org_agenda_show_help = 'g?',
     },

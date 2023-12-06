@@ -39,6 +39,7 @@ return {
     org_agenda_set_tags = m.action('agenda.set_tags', { opts = { desc = 'org set tags' } }),
     org_agenda_deadline = m.action('agenda.set_deadline', { opts = { desc = 'org deadline' } }),
     org_agenda_schedule = m.action('agenda.set_schedule', { opts = { desc = 'org schedule' } }),
+    org_agenda_set_range = m.action('agenda.set_range', { opts = { desc = 'org schedule range' } }),
     org_agenda_filter = m.action('agenda.filter', { opts = { desc = 'org filter' } }),
     org_agenda_show_help = m.action('org_mappings.show_help', { opts = { desc = 'org show help' } }),
   },

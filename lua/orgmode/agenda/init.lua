@@ -338,6 +338,13 @@ function Agenda:set_schedule()
   })
 end
 
+function Agenda:set_range()
+  return self:_remote_edit({
+    action = 'org_mappings.org_set_schedule_range',
+    redo = true,
+  })
+end
+
 function Agenda:toggle_clock_report()
   self:_call_view('toggle_clock_report')
   return self:redo(true)

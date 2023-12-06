@@ -937,8 +937,24 @@ function OrgMappings:org_schedule()
       end
       headline:remove_closed_date()
       headline:set_scheduled_date(new_date)
+      vim.cmd("silent! wall")
     end)
 end
+
+
+function OrgMappings:org_set_schedule_range()
+  local headline = ts_org.closest_headline()
+
+  vim.ui.input({prompt = "Enter range: "}, function(input)
+    if input == "" then
+      return
+    end
+    local scheduled_date = headline:scheduled()
+    headline:set_scheduled_ts(scheduled_date, input)
+  end)
+
+end
+
 
 ---@param inactive boolean
 function OrgMappings:org_time_stamp(inactive)

@@ -347,6 +347,19 @@ function Date:to_wrapped_string(active)
   return string.format('%s%s%s', open, date, close)
 end
 
+---@param active boolean|nil
+---@return string
+function Date:to_wrapped_string_with_range(active, ts_range)
+  if type(active) ~= 'boolean' then
+    active = self.active
+  end
+  -- local date = self:to_string()
+  local dt_only = tostring(os.date("%Y-%m-%d", self.timestamp))
+  local open = active and '<' or '['
+  local close = active and '>' or ']'
+  return string.format('%s%s %s%s', open, dt_only, ts_range, close)
+end
+
 ---@return string
 function Date:format_time()
   if not self:has_time() then
