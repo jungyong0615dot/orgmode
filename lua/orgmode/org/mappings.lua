@@ -944,12 +944,17 @@ end
 
 function OrgMappings:org_set_schedule_range()
   local headline = ts_org.closest_headline()
+  local scheduled_date = headline:scheduled()
+  local default_input = ""
 
-  vim.ui.input({prompt = "Enter range: "}, function(input)
+  if scheduled_date.timestamp_end ~= nil then
+    default_input = string.format("%s-%s", os.date("%H:%M", scheduled_date.timestamp), os.date("%H:%M", scheduled_date.timestamp_end))
+  end
+
+  vim.ui.input({prompt = "Enter range: ", default=default_input}, function(input)
     if input == "" then
       return
     end
-    local scheduled_date = headline:scheduled()
     headline:set_scheduled_ts(scheduled_date, input)
   end)
 
