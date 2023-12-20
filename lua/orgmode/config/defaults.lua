@@ -58,7 +58,8 @@ local DefaultConfig = {
     prefix = '<Leader>o',
     global = {
       org_agenda = '<prefix>a',
-      org_capture = '<prefix>c',
+      -- org_capture = '<prefix>c',
+      org_capture = 'N',
     },
     agenda = {
       org_agenda_later = 'f',
@@ -97,7 +98,8 @@ local DefaultConfig = {
     },
     capture = {
       org_capture_finalize = '<C-c>',
-      org_capture_refile = '<prefix>r',
+      -- org_capture_refile = '<prefix>r',
+      org_capture_refile = 'M',
       org_capture_kill = '<prefix>k',
       org_capture_show_help = 'g?',
     },
@@ -107,7 +109,8 @@ local DefaultConfig = {
       org_note_show_help = 'g?',
     },
     org = {
-      org_refile = '<prefix>r',
+      -- org_refile = '<prefix>r',
+      org_refile = 'M',
       org_timestamp_up_day = '<S-UP>',
       org_timestamp_down_day = '<S-DOWN>',
       org_timestamp_up = 'cik',
