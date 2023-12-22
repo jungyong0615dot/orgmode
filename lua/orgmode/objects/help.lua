@@ -90,6 +90,7 @@ local helps = {
       { key = 'org_agenda_set_tags', description = 'Change tags of current headline' },
       { key = 'org_agenda_deadline', description = 'Insert/Update deadline date on current headline' },
       { key = 'org_agenda_schedule', description = 'Insert/Update scheduled date on current headline' },
+      { key = 'org_set_schedule_range', description = 'Insert/Update time range' },
       { key = 'org_agenda_quit', description = 'Close agenda' },
       { key = 'org_agenda_show_help', description = 'Show this help' },
     },
