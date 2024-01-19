@@ -59,13 +59,13 @@ function Export.pandoc(opts)
     return utils.echo_error('pandoc executable not found. Make sure pandoc is in $PATH.')
   end
 
-  local cmd = { 'pandoc', file, '-o', target }
+  local cmd = { 'pandoc', file, '-o', target, "--wrap=none"}
   if opts.format then
     table.insert(cmd, '-t')
     table.insert(cmd, opts.format)
   end
 
-  return Export._exporter(cmd, target)
+  return Export._exporter(cmd, target, opts.on_success)
 end
 
 ---@param opts table
