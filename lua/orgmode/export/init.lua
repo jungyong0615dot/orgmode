@@ -30,7 +30,7 @@ function Export._exporter(cmd, target, on_success, on_error)
       end
 
       if on_success then
-        return on_success(output)
+        return on_success(output, cmd, target)
       end
 
       local menu = Menu:new({
