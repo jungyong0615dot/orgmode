@@ -145,7 +145,6 @@ function AgendaFilter:parse(filter, skip_check)
     end
     local val = vim.trim(tag_cat)
     if val ~= '' then
-      vim.print(val)
       if self.available_tags[val] or skip_check then
         table.insert(self.tags, { operator = operator, value = val })
       elseif self.available_categories[val] or skip_check then
@@ -153,7 +152,6 @@ function AgendaFilter:parse(filter, skip_check)
       end
     end
   end
-  vim.print(self.tags)
   self.term = search_term or ''
   self.applying = true
   if skip_check then
