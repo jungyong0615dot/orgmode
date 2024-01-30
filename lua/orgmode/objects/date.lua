@@ -720,7 +720,7 @@ function Date:humanize(from)
   if diff < 0 then
     return math.abs(diff) .. ' d. ago'
   end
-  return 'In ' .. diff .. ' d.'
+  return 'DEADLINE - In ' .. diff .. ' d.'
 end
 
 ---@return boolean

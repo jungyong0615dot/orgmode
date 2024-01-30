@@ -11,6 +11,8 @@ local function sort_by_date_or_priority_or_category(a, b)
   if a.headline:get_priority_sort_value() ~= b.headline:get_priority_sort_value() then
     return a.headline:get_priority_sort_value() > b.headline:get_priority_sort_value()
   end
+
+
   if not a.real_date:is_same(b.real_date, 'day') then
     return a.real_date:is_before(b.real_date)
   end
@@ -21,6 +23,14 @@ end
 ---@return AgendaItem[]
 local function sort_agenda_items(agenda_items)
   table.sort(agenda_items, function(a, b)
+
+    if a.real_date:is_deadline() and not b.real_date:is_deadline() then
+      return true
+    elseif not a.real_date:is_deadline() and b.real_date:is_deadline() then
+      return false
+    end
+
+
     if a.is_same_day and b.is_same_day then
       if a.real_date:has_time() and not b.real_date:has_time() then
         return true

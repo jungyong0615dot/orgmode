@@ -164,7 +164,7 @@ function AgendaItem:_generate_label()
   local time = self.headline_date:has_time() and add_padding(self:_format_time(self.headline_date)) or ''
   if self.headline_date:is_deadline() then
     if self.is_same_day then
-      return time .. 'Dd:'
+      return time .. 'DEADLINE:'
     end
     return self.headline_date:humanize(self.date) .. ':'
   end
@@ -222,6 +222,10 @@ function AgendaItem:_format_time(date)
 end
 
 function AgendaItem:_generate_highlight()
+  if string.find(self.headline_date:humanize(self.date), "DEADLINE") ~= nil then
+    return { hlgroup = hl_map.deadline }
+  end
+
   if self.headline_date:is_deadline() then
     if self.headline:is_done() then
       return { hlgroup = hl_map.ok }
