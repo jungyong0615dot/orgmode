@@ -208,9 +208,12 @@ function AgendaView:build()
 
     for _, agenda_item in ipairs(agenda_items) do
       local effort_str = agenda_item.headline:get_property("effort") or "00:00"
-      string.gsub(effort_str, "(%d+):(%d+)", function(h, m)
-        total_effort_minute = total_effort_minute + (tonumber(h) * 60) + tonumber(m)
-      end)
+
+      if not agenda_item.headline_date:is_deadline() then
+        string.gsub(effort_str, "(%d+):(%d+)", function(h, m)
+          total_effort_minute = total_effort_minute + (tonumber(h) * 60) + tonumber(m)
+        end)
+      end
 
       if not (agenda_item.headline:is_done() or agenda_item.headline_date:is_deadline()) then
         string.gsub(effort_str, "(%d+):(%d+)", function(h, m)
