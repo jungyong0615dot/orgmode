@@ -359,7 +359,7 @@ function utils.prompt_autocomplete(arg_lead, list, split_chars)
   local base = arg_lead:gsub(match_rgx, '')
   local last = arg_lead:match(match_rgx)
   local matches = vim.tbl_filter(function(tag)
-    return tag:match('^' .. vim.pesc(last)) and not vim.tbl_contains(parts, tag)
+    return string.upper(tag):match('^' .. vim.pesc(string.upper(last))) and not vim.tbl_contains(parts, tag)
   end, list)
 
   return vim.tbl_map(function(tag)
