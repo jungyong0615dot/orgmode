@@ -226,7 +226,7 @@ function AgendaView:build()
 
     end
 
-    table.insert(content, { line_content = self:_format_day(day) .. " [Total " .. tostring(total_effort_minute) .. " min, Remaining " .. todo_effort_minute .. " min (w/o current clocked - " .. tostring(todo_effort_minute - current_effort_minute) .. " min)]" })
+    table.insert(content, { line_content = self:_format_day(day) .. " [Tot " .. tostring(total_effort_minute) .. " min, R " .. todo_effort_minute .. " min (w/o c.c - " .. tostring(todo_effort_minute - current_effort_minute) .. " min)]" })
 
     local longest_items = utils.reduce(agenda_items, function(acc, agenda_item)
       acc.category = math.max(acc.category, vim.api.nvim_strwidth(agenda_item.headline:get_category()))
