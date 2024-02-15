@@ -199,7 +199,34 @@ function AgendaView:build()
       })
     end
 
-    table.insert(content, { line_content = self:_format_day(day) })
+    local total_effort = 0
+    local total_effort_minute = 0
+
+    local todo_effort = 0
+    local todo_effort_minute = 0
+    local current_effort_minute = 0
+
+    for _, agenda_item in ipairs(agenda_items) do
+      local effort_str = agenda_item.headline:get_property("effort") or "00:00"
+      string.gsub(effort_str, "(%d+):(%d+)", function(h, m)
+        total_effort_minute = total_effort_minute + (tonumber(h) * 60) + tonumber(m)
+      end)
+
+      if not (agenda_item.headline:is_done() or agenda_item.headline_date:is_deadline()) then
+        string.gsub(effort_str, "(%d+):(%d+)", function(h, m)
+          todo_effort_minute = todo_effort_minute + (tonumber(h) * 60) + tonumber(m)
+        end)
+      end
+
+      if agenda_item.headline:is_clocked_in() and not agenda_item.headline_date:is_deadline() then
+        string.gsub(effort_str, "(%d+):(%d+)", function(h, m)
+           current_effort_minute = current_effort_minute + (tonumber(h) * 60) + tonumber(m)
+        end)
+      end
+
+    end
+
+    table.insert(content, { line_content = self:_format_day(day) .. " [Total " .. tostring(total_effort_minute) .. " min, Remaining " .. todo_effort_minute .. " min (w/o current clocked - " .. tostring(todo_effort_minute - current_effort_minute) .. " min)]" })
 
     local longest_items = utils.reduce(agenda_items, function(acc, agenda_item)
       acc.category = math.max(acc.category, vim.api.nvim_strwidth(agenda_item.headline:get_category()))

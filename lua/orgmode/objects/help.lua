@@ -233,7 +233,8 @@ function Help._prepare_orgagenda(mappings, max_height)
 
     table.insert(
       content,
-      string.format('  `%-12s` - %s', string.gsub(maps, '<prefix>', mappings.prefix), item.description)
+      -- string.format('  `%-12s` - %s', string.gsub(maps, '<prefix>', mappings.prefix), item.description)
+      string.format('  `%-12s` - %s', maps, item.description)
     )
   end
 
