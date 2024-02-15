@@ -199,10 +199,8 @@ function AgendaView:build()
       })
     end
 
-    local total_effort = 0
     local total_effort_minute = 0
 
-    local todo_effort = 0
     local todo_effort_minute = 0
     local current_effort_minute = 0
 
