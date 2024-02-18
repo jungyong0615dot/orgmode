@@ -318,6 +318,7 @@ function Capture:_refile_to(opts)
   local target_level = 0
   local target_line = -1
   local should_adapt_headline = has_headline or (opts.item ~= nil and opts.item.level > 1)
+  local headline_text = ""
   if has_headline then
     local headline = destination_file:find_headline_by_title(opts.headline, true)
     if not headline then
@@ -326,6 +327,7 @@ function Capture:_refile_to(opts)
     end
     target_level = headline.level
     target_line = headline.range.end_line
+    headline_text = "-- " .. headline.title
   end
 
   local item = opts.item
@@ -345,6 +347,7 @@ function Capture:_refile_to(opts)
     local view = vim.fn.winsaveview()
     vim.cmd(string.format('silent! %d,%d move %s', item.range.start_line, item.range.end_line, target))
     vim.fn.winrestview(view)
+
 
     utils.echo_info(opts.message or string.format('Wrote %s', opts.file))
     return true
@@ -369,7 +372,7 @@ function Capture:_refile_to(opts)
     pcall(vim.api.nvim_buf_set_lines, 0, item.range.start_line - 1, item.range.end_line, false, {})
   end
 
-  utils.echo_info(opts.message or string.format('Wrote %s', opts.file))
+  utils.echo_info(opts.message or string.format('Wrote %s %s', opts.file, headline_text))
   return true
 end
 
