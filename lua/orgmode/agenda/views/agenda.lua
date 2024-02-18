@@ -203,9 +203,22 @@ function AgendaView:build()
 
     local todo_effort_minute = 0
     local current_effort_minute = 0
+    local total_clocked_minute = 0
 
+-- .logbook:get_total_with_active()
     for _, agenda_item in ipairs(agenda_items) do
       local effort_str = agenda_item.headline:get_property("effort") or "00:00"
+
+      local logbook = agenda_item.headline.logbook
+
+
+      if logbook then
+        if agenda_item.headline:is_clocked_in() then
+          total_clocked_minute = total_clocked_minute + logbook:get_total_with_active().minutes
+        else
+          total_clocked_minute = total_clocked_minute + logbook:get_total().minutes
+        end
+      end
 
       if not agenda_item.headline_date:is_deadline() then
         string.gsub(effort_str, "(%d+):(%d+)", function(h, m)
@@ -227,7 +240,8 @@ function AgendaView:build()
 
     end
 
-    table.insert(content, { line_content = self:_format_day(day) .. " [Tot " .. tostring(total_effort_minute) .. " min, R " .. todo_effort_minute .. " min (w/o c.c - " .. tostring(todo_effort_minute - current_effort_minute) .. " min)]" })
+    -- table.insert(content, { line_content = self:_format_day(day) .. " [Tot " .. tostring(total_effort_minute) .. " min, R " .. todo_effort_minute .. " min (w/o c.c - " .. tostring(todo_effort_minute - current_effort_minute) .. " min)]" })
+    table.insert(content, { line_content = self:_format_day(day) .. string.format(" [Tot %s min, R %s min (w/o c.c - %s), El %s min", tostring(total_effort_minute), todo_effort_minute, tostring(todo_effort_minute - current_effort_minute), tostring(total_clocked_minute) )})
 
     local longest_items = utils.reduce(agenda_items, function(acc, agenda_item)
       acc.category = math.max(acc.category, vim.api.nvim_strwidth(agenda_item.headline:get_category()))

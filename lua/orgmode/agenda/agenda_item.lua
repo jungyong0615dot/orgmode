@@ -82,6 +82,12 @@ function AgendaItem:_generate_data()
   local logbook_duration = "0:00"
   if logbook then
     logbook_duration = logbook:get_total():to_string()
+
+    if headline:is_clocked_in() then
+      logbook_duration = logbook:get_total_with_active():to_string()
+    else
+      logbook_duration = logbook:get_total():to_string()
+    end
   end
   local effort = headline:get_property("effort") or "00:00"
 

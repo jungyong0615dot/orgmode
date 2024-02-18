@@ -40,7 +40,15 @@ function ClockReport:draw_for_agenda(start_line)
       local logbook = headline.logbook
       local logbook_duration = "00:00"
       if logbook then
-        logbook_duration = logbook:get_total(self.from, self.to):to_string()
+
+        if headline:is_clocked_in() then
+          logbook_duration = logbook:get_total_with_active():to_string()
+        else
+          logbook_duration = logbook:get_total():to_string()
+        end
+
+        -- logbook_duration = logbook:get_total(self.from, self.to):to_string()
+
       end
       table.insert(data, {
         '',
