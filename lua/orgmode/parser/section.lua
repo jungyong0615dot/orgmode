@@ -14,7 +14,7 @@ local config = require('orgmode.config')
 ---@field id string
 ---@field line_number number
 ---@field level number
----@field node userdata
+---@field node TSNode
 ---@field root File
 ---@field parent Section
 ---@field line string
@@ -37,7 +37,7 @@ local Section = {}
 ---@class SectionProperties
 ---@field items table<string, string>
 ---@field range Range
----@field node userdata
+---@field node TSNode
 ---@field valid boolean
 
 ---@class SectionTodoKeyword
@@ -51,7 +51,7 @@ local Section = {}
 ---@field level number
 ---@field line string
 ---@field logbook Logbook
----@field node userdata
+---@field node TSNode
 ---@field own_tags string[]
 ---@field parent Section
 ---@field priority string
@@ -309,6 +309,11 @@ function Section:get_property(name)
   return self.properties.items[name:lower()]
 end
 
+---@return table<string, string>
+function Section:get_properties()
+  return self.properties and self.properties.items or {}
+end
+
 function Section:matches_search_term(term)
   if self.title:lower():match(term) then
     return true
@@ -406,7 +411,7 @@ end
 function Section:demote(amount, demote_child_sections, dryRun)
   amount = amount or 1
   demote_child_sections = demote_child_sections or false
-  local should_indent = config.org_indent_mode == 'indent'
+  local should_indent = config.org_adapt_indentation
   local lines = {}
   local headline_line = string.rep('*', amount) .. self.line
   table.insert(lines, headline_line)
@@ -444,7 +449,7 @@ end
 function Section:promote(amount, promote_child_sections, dryRun)
   amount = amount or 1
   promote_child_sections = promote_child_sections or false
-  local should_dedent = config.org_indent_mode == 'indent'
+  local should_dedent = config.org_adapt_indentation
   local lines = {}
   if self.level == 1 then
     utils.echo_warning('Cannot demote top level heading.')

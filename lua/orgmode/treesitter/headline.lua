@@ -5,12 +5,13 @@ local Date = require('orgmode.objects.date')
 local Range = require('orgmode.parser.range')
 local config = require('orgmode.config')
 local ts = vim.treesitter
+local indent = require('orgmode.org.indent')
 
 ---@class Headline
----@field headline userdata
+---@field headline TSNode
 local Headline = {}
 
----@param headline_node userdata tree sitter headline node
+---@param headline_node TSNode tree sitter headline node
 function Headline:new(headline_node)
   local data = { headline = headline_node }
   setmetatable(data, self)
@@ -28,7 +29,7 @@ function Headline.from_cursor(cursor)
   return Headline:new(ts_headline)
 end
 
----@return userdata stars node
+---@return TSNode stars node
 function Headline:stars()
   return self.headline:field('stars')[1]
 end
@@ -62,12 +63,18 @@ function Headline:promote(amount, recursive)
     return utils.echo_warning('Cannot demote top level heading.')
   end
 
-  return self:_handle_promote_demote(recursive, function(lines)
+  return self:_handle_promote_demote(recursive, function(start_line, lines)
     for i, line in ipairs(lines) do
       if line:sub(1, 1) == '*' then
         lines[i] = line:sub(1 + amount)
       elseif vim.trim(line:sub(1, amount)) == '' then
-        lines[i] = line:sub(1 + amount)
+        if config.org_adapt_indentation then
+          lines[i] = line:sub(1 + amount)
+        else
+          line, _ = line:gsub('^%s+', '')
+          local indent_amount = indent.indentexpr(start_line + i)
+          lines[i] = string.rep(' ', indent_amount) .. line
+        end
       end
     end
     return lines
@@ -80,12 +87,18 @@ function Headline:demote(amount, recursive)
   amount = amount or 1
   recursive = recursive or false
 
-  return self:_handle_promote_demote(recursive, function(lines)
+  return self:_handle_promote_demote(recursive, function(start_line, lines)
     for i, line in ipairs(lines) do
       if line:sub(1, 1) == '*' then
         lines[i] = string.rep('*', amount) .. line
       else
-        lines[i] = config:apply_indent(line, amount)
+        if config.org_adapt_indentation then
+          lines[i] = config:apply_indent(line, amount)
+        else
+          line, _ = line:gsub('^%s+', '')
+          local indent_amount = indent.indentexpr(start_line + i)
+          lines[i] = string.rep(' ', indent_amount) .. line
+        end
       end
     end
     return lines
@@ -94,8 +107,10 @@ end
 
 function Headline:_handle_promote_demote(recursive, modifier)
   local whole_subtree = function()
-    local text = ts.get_node_text(self.headline:parent(), 0)
-    local lines = modifier(vim.split(text, '\n', true))
+    local parent = self.headline:parent()
+    local text = ts.get_node_text(parent, 0)
+    local start, _, _ = parent:start()
+    local lines = modifier(start, vim.split(text, '\n', true))
     tree_utils.set_node_lines(self.headline:parent(), lines)
     return self:refresh()
   end
@@ -118,12 +133,12 @@ function Headline:_handle_promote_demote(recursive, modifier)
 
   local start = self.headline:start()
   local end_line = first_child_section:start()
-  local lines = modifier(vim.api.nvim_buf_get_lines(0, start, end_line, false))
+  local lines = modifier(start, vim.api.nvim_buf_get_lines(0, start, end_line, false))
   vim.api.nvim_buf_set_lines(0, start, end_line, false, lines)
   return self:refresh()
 end
 
----@return userdata, string
+---@return TsNode, string
 function Headline:tags()
   local node = self.headline:field('tags')[1]
   local text = ''
@@ -277,10 +292,14 @@ function Headline:title()
   if todo then
     title = title:gsub('^' .. vim.pesc(word) .. '%s*', '')
   end
+  local _, priority = self:priority()
+  if priority then
+    title = title:gsub('^' .. vim.pesc(priority) .. '%s*', '')
+  end
   return title
 end
 
----@return userdata|nil
+---@return TSNode|nil
 function Headline:plan()
   local section = self.headline:parent()
   for _, node in ipairs(ts_utils.get_named_children(section)) do
@@ -290,7 +309,7 @@ function Headline:plan()
   end
 end
 
----@return userdata|nil
+---@return TSNode|nil
 function Headline:properties()
   local section = self.headline:parent()
   for _, node in ipairs(ts_utils.get_named_children(section)) do
@@ -359,7 +378,7 @@ function Headline:get_append_line()
   return self.headline:end_()
 end
 
----@return Table<string, userdata>
+---@return Table<string, TSNode>
 function Headline:dates()
   local plan = self:plan()
   local dates = {}
@@ -375,7 +394,7 @@ function Headline:dates()
   return dates
 end
 
----@return userdata[]
+---@return TSNode[]
 function Headline:repeater_dates()
   return vim.tbl_filter(function(entry)
     local timestamp = entry:field('timestamp')[1]
@@ -619,6 +638,16 @@ end
 ---@param text table|string
 function Headline:_apply_indent(text)
   return config:apply_indent(text, self:level() + 1)
+end
+
+function Headline:id_get_or_create()
+  local id_prop = self:get_property('ID')
+  if id_prop then
+    return vim.trim(id_prop.value)
+  end
+  local org_id = require('orgmode.org.id').new()
+  self:set_property('ID', org_id)
+  return org_id
 end
 
 return Headline

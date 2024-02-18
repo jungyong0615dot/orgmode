@@ -1,5 +1,6 @@
 local instance = {}
 local utils = require('orgmode.utils')
+local fs = require('orgmode.utils.fs')
 local defaults = require('orgmode.config.defaults')
 ---@type table<string, MapEntry>
 local mappings = require('orgmode.config.mappings')
@@ -39,6 +40,9 @@ function Config:extend(opts)
     opts.org_priority_default = self.opts.org_priority_default
   end
   self.opts = vim.tbl_deep_extend('force', self.opts, opts)
+  if self.org_startup_indented then
+    self.org_adapt_indentation = not self.org_indent_mode_turns_off_org_adapt_indentation
+  end
   return self
 end
 
@@ -142,6 +146,14 @@ function Config:_deprecation_notify(opts)
     end
   end
 
+  if opts.org_indent_mode and type(opts.org_indent_mode) == 'string' then
+    table.insert(
+      messages,
+      '"org_indent_mode" is deprecated in favor of "org_startup_indented". Check the documentation about the new option.'
+    )
+    opts.org_startup_indented = (opts.org_indent_mode == 'indent')
+  end
+
   if #messages > 0 then
     -- Schedule so it gets printed out once whole init.vim is loaded
     vim.schedule(function()
@@ -154,8 +166,10 @@ end
 function Config:get_all_files()
   local all_filenames = {}
   if self.opts.org_default_notes_file and self.opts.org_default_notes_file ~= '' then
-    local default_full_path = vim.fn.resolve(vim.fn.expand(self.opts.org_default_notes_file, ':p'))
-    table.insert(all_filenames, default_full_path)
+    local default_full_path = vim.fn.resolve(vim.fn.fnamemodify(self.opts.org_default_notes_file, ':p'))
+    if vim.loop.fs_stat(default_full_path) then
+      table.insert(all_filenames, default_full_path)
+    end
   end
   local files = self.opts.org_agenda_files
   if not files or files == '' or (type(files) == 'table' and vim.tbl_isempty(files)) then
@@ -317,13 +331,23 @@ function Config:parse_archive_location(file, archive_loc)
   -- TODO: Support archive to headline
   local parts = vim.split(archive_loc, '::')
   local archive_location = vim.trim(parts[1])
-  if archive_location:find('%%s') then
-    local file_path = vim.fn.fnamemodify(file, ':p:h')
-    local file_name = vim.fn.fnamemodify(file, ':t')
-    local archive_filename = string.format(archive_location, file_name)
+  if not archive_location:find('%%s') then
+    return vim.fn.fnamemodify(archive_location, ':p')
+  end
+
+  local file_path = vim.fn.fnamemodify(file, ':p:h')
+  local file_name = vim.fn.fnamemodify(file, ':t')
+  local archive_filename = string.format(archive_location, file_name)
+
+  -- If org_archive_location is defined as relative path (example: "archive/%s_archive")
+  -- then we need to prepend the file path to it
+  local is_full_path = fs.substitute_path(archive_filename)
+
+  if not is_full_path then
     return string.format('%s/%s', file_path, archive_filename)
   end
-  return vim.fn.fnamemodify(archive_location, ':p')
+
+  return vim.fn.fnamemodify(archive_filename, ':p')
 end
 
 function Config:is_archive_file(file)
@@ -380,8 +404,8 @@ function Config:ts_highlights_enabled()
 end
 
 ---@param content table
----@param option string
----@param prepend_content any
+---@param option? string
+---@param prepend_content? any
 ---@return table
 function Config:respect_blank_before_new_entry(content, option, prepend_content)
   if self.opts.org_blank_before_new_entry[option or 'heading'] then
@@ -393,7 +417,7 @@ end
 ---@param amount number
 ---@return string
 function Config:get_indent(amount)
-  if self.opts.org_indent_mode == 'indent' then
+  if self.org_adapt_indentation then
     return string.rep(' ', amount)
   end
   return ''
