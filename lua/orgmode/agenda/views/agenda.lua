@@ -30,6 +30,13 @@ local function sort_agenda_items(agenda_items)
       return false
     end
 
+    if a.headline:is_done() and not b.headline:is_done() then
+      return true
+    elseif not a.headline:is_done() and b.headline:is_done() then
+      return false
+    end
+
+
 
     if a.is_same_day and b.is_same_day then
       if a.real_date:has_time() and not b.real_date:has_time() then
