@@ -258,7 +258,7 @@ function AgendaView:build()
       category = 0,
       label = 0,
     })
-    local category_len = math.max(11, (longest_items.category + 1))
+    local category_len = math.max(5, (longest_items.category + 1))
     local date_len = math.min(11, longest_items.label)
 
     -- print(win_width)
@@ -278,6 +278,7 @@ function AgendaView:build()
     self.clock_report = ClockReport.from_date_range(self.from, self.to)
     utils.concat(self.content, self.clock_report:draw_for_agenda(#self.content + 1))
   end
+  
   return self
 end
 

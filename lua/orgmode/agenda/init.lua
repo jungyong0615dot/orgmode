@@ -163,6 +163,7 @@ function Agenda:_render(skip_rebuild)
   vim.api.nvim_buf_set_lines(0, 0, -1, true, lines)
   vim.bo.modifiable = false
   vim.bo.modified = false
+  vim.wo.foldlevel = 99
   colors.highlight(self.highlights, true)
   vim.tbl_map(function(item)
     if item.highlights then
