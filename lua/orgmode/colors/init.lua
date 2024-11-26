@@ -59,6 +59,10 @@ M.get_todo_keywords_colors = function()
       gui = M.from_hex(error):lighten_by(0.1):to_rgb(),
       cterm = 9,
     },
+    deadline_soon = {
+      gui = M.from_hex(error):lighten_by(0.1):to_rgb(),
+      cterm = 9,
+    },
     ok = {
       gui = M.from_hex(ok):lighten_by(0.1):to_rgb(),
       cterm = 10,

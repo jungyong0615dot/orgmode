@@ -229,6 +229,10 @@ end
 
 function AgendaItem:_generate_highlight()
   if string.find(self.headline_date:humanize(self.date), "DEADLINE") ~= nil then
+    if string.find(self.headline_date:humanize(self.date), "In ") ~= nil then 
+      return { hlgroup = hl_map.deadline_soon }
+    end
+
     return { hlgroup = hl_map.deadline }
   end
 

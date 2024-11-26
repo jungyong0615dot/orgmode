@@ -51,6 +51,7 @@ function M.define_agenda_colors()
   local keyword_colors = colors.get_todo_keywords_colors()
   local c = {
     deadline = 'OrgAgendaDeadline',
+    deadline_soon = 'BufferLineLuaLabel',
     ok = 'OrgAgendaScheduled',
     warning = 'OrgAgendaScheduledPast',
   }
@@ -211,6 +212,7 @@ function M.get_agenda_hl_map()
     TODO = 'OrgTODO',
     DONE = 'OrgDONE',
     deadline = 'OrgAgendaDeadline',
+    deadline_soon = 'BufferLineLuaLabel',
     ok = 'OrgAgendaScheduled',
     warning = 'OrgAgendaScheduledPast',
   }, faces)
