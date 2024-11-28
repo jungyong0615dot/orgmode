@@ -101,6 +101,16 @@ function Capture:open_template(template)
 
   vim.b.org_template = template
   vim.b.org_capture = true
+
+  vim.keymap.set('n', 'q', '<cmd>q!<cr>', {buffer=0})
+
+   -- vim.api.nvim_create_autocmd('BufEnter', {
+   --  buffer = 0,
+   --  group = notifications_augroup,
+   --  command = 'bw!',
+   --  once = true,
+   --  }) 
+
   config:setup_mappings('capture')
 end
 

@@ -50,8 +50,8 @@ end
 function M.define_agenda_colors()
   local keyword_colors = colors.get_todo_keywords_colors()
   local c = {
-    deadline = 'OrgAgendaDeadline',
-    deadline_soon = 'BufferLineShLabel',
+    deadline = 'BufferLineShLabel',
+    deadline_soon = 'OrgAgendaDeadline',
     deadline_overed = 'BufferLineAhkLabel',
     schedule_overed = 'St_InsertModeSep',
     deadline_not_exist = 'St_pos_text',
@@ -215,10 +215,10 @@ function M.get_agenda_hl_map()
   return vim.tbl_extend('force', {
     TODO = 'OrgTODO',
     DONE = 'OrgDONE',
-    deadline = 'OrgAgendaDeadline',
+    deadline = 'BufferLineShLabel',
     deadline_overed = 'BufferLineAhkLabel',
     schedule_overed = 'St_InsertModeSep',
-    deadline_soon = 'BufferLineShLabel',
+    deadline_soon = 'OrgAgendaDeadline',
     deadline_not_exist = 'St_pos_text',
     deadline_done = 'BufferLineLuaLabel',
     ok = 'OrgAgendaScheduled',
