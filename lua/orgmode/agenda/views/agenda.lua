@@ -38,6 +38,16 @@ local function sort_agenda_items(agenda_items)
 
 
 
+    -- self:diff(from)
+    if a.real_date:is_deadline() and b.real_date:is_deadline() then
+      if a.real_date:diff(b.real_date) >= 0 then
+        return false
+      else
+        return true
+      end
+    end
+
+
     if a.is_same_day and b.is_same_day then
       if a.real_date:has_time() and not b.real_date:has_time() then
         return true
@@ -382,7 +392,7 @@ function AgendaView.build_agenda_item_content(agenda_item, longest_category, lon
         start_col = 1,
         end_col = 0,
       }),
-      hl_group = 'Visual',
+      hl_group = 'Cursor',
       whole_line = true,
     })
   end

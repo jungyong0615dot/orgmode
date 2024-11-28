@@ -950,6 +950,32 @@ function OrgMappings:org_deadline()
     end)
 end
 
+function OrgMappings:org_set_deadline_range()
+
+  local headline = ts_org.closest_headline()
+  local deadline_date = headline:deadline()
+
+  -- vim.print(deadline_date:humanize(deadline_date))
+  -- if string.find(deadline_date:humanize(deadline_date), "DEADLINE") ~= nil then
+  --   vim.print("DEADLINE")
+  -- end
+
+  local default_input = ""
+
+  if deadline_date and deadline_date.timestamp_end ~= nil then
+    default_input = string.format("%s", os.date("%H:%M", deadline_date.timestamp_end))
+  end
+
+  vim.ui.input({prompt = "Enter range (HH:MM): ", default=default_input}, function(input)
+    if input == "" or input == nil then
+      return
+    end
+
+    headline:set_deadline_ts(deadline_date, input)
+  end)
+end
+
+
 function OrgMappings:org_schedule()
   local headline = ts_org.closest_headline()
   local scheduled_date = headline:scheduled()
@@ -979,9 +1005,10 @@ function OrgMappings:org_set_schedule_range()
   end
 
   vim.ui.input({prompt = "Enter range: ", default=default_input}, function(input)
-    if input == "" then
+    if input == "" or input == nil then
       return
     end
+
     headline:set_scheduled_ts(scheduled_date, input)
   end)
 

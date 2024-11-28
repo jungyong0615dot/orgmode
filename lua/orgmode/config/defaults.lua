@@ -96,7 +96,10 @@ local DefaultConfig = {
       org_agenda_set_tags = 'Y',
       org_agenda_deadline = 'L',
       org_agenda_schedule = 'S',
+
       org_agenda_set_range = 'B',
+      org_set_deadline_range = 'K',
+
       org_agenda_filter = '/',
       org_agenda_show_help = 'g?',
     },

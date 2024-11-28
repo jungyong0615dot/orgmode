@@ -63,6 +63,22 @@ M.get_todo_keywords_colors = function()
       gui = M.from_hex(error):lighten_by(0.1):to_rgb(),
       cterm = 9,
     },
+    deadline_overed = {
+      gui = M.from_hex(error):lighten_by(0.1):to_rgb(),
+      cterm = 15,
+    },
+    schedule_overed = {
+      gui = M.from_hex(error):lighten_by(0.1):to_rgb(),
+      cterm = 16,
+    },
+    deadline_not_exist = {
+      gui = M.from_hex(error):lighten_by(0.1):to_rgb(),
+      cterm = 14,
+    },
+    deadline_done = {
+      gui = M.from_hex(error):lighten_by(0.1):to_rgb(),
+      cterm = 13,
+    },
     ok = {
       gui = M.from_hex(ok):lighten_by(0.1):to_rgb(),
       cterm = 10,

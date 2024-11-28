@@ -422,6 +422,12 @@ function Headline:set_deadline_date(date)
 end
 
 ---@param date Date
+---@param range string
+function Headline:set_deadline_ts(date, range)
+  return self:_add_range('DEADLINE', date, range, true)
+end
+
+---@param date Date
 function Headline:set_scheduled_date(date)
   return self:_add_date('SCHEDULED', date, true)
 end

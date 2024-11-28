@@ -2,16 +2,18 @@ local Highlights = require('orgmode.colors.highlights')
 local hl_map = Highlights.get_agenda_hl_map()
 local config = require('orgmode.config')
 local FUTURE_DEADLINE_AS_WARNING_DAYS = math.floor(config.org_deadline_warning_days / 2)
+
 local function add_padding(datetime)
-  if datetime:len() >= 11 then
+  if datetime:len() <= 31 then
     return datetime .. ' '
   end
-  return datetime .. string.rep('.', 11 - datetime:len()) .. ' '
+  return datetime .. string.rep('.', 31 - datetime:len()) .. ' '
 end
 
 ---@class AgendaItem
 ---@field date Date
 ---@field headline_date Date
+---@field has_deadline boolean
 ---@field real_date Date
 ---@field headline Section
 ---@field is_valid boolean
@@ -30,6 +32,7 @@ local AgendaItem = {}
 function AgendaItem:new(headline_date, headline, date, index)
   local opts = {}
   opts.headline_date = headline_date
+  opts.has_deadline = false
   opts.real_date = headline_date
   opts.headline = headline
   opts.date = date
@@ -70,6 +73,8 @@ function AgendaItem:_process()
     self.is_valid = self:_is_valid_for_date()
   end
 
+  self:_has_deadline()
+
   if self.is_valid then
     self:_generate_data()
   end
@@ -79,7 +84,7 @@ function AgendaItem:_generate_data()
   self.label = self:_generate_label()
   local headline = self.headline
   local logbook = headline.logbook
-  local logbook_duration = "0:00"
+  local logbook_duration = '0:00'
   if logbook then
     logbook_duration = logbook:get_total():to_string()
 
@@ -89,10 +94,9 @@ function AgendaItem:_generate_data()
       logbook_duration = logbook:get_total():to_string()
     end
   end
-  local effort = headline:get_property("effort") or "00:00"
+  local effort = headline:get_property('effort') or '00:00'
 
-
-  self.label = "[".. logbook_duration .. "/" .. effort .. "]" .. self.label
+  self.label = '[' .. logbook_duration .. '/' .. effort .. ']' .. self.label
 
   self.highlights = {}
   local highlight = self:_generate_highlight()
@@ -143,6 +147,15 @@ function AgendaItem:_is_valid_for_today()
   end
 
   return false
+end
+
+function AgendaItem:_has_deadline()
+  for _, date in ipairs(self.headline.dates) do
+    if date.type == 'DEADLINE' then
+      self.has_deadline = true
+      return
+    end
+  end
 end
 
 function AgendaItem:_is_valid_for_date()
@@ -228,8 +241,21 @@ function AgendaItem:_format_time(date)
 end
 
 function AgendaItem:_generate_highlight()
-  if string.find(self.headline_date:humanize(self.date), "DEADLINE") ~= nil then
-    if string.find(self.headline_date:humanize(self.date), "In ") ~= nil then 
+
+
+  if string.find(self.headline_date:humanize(self.date), 'ago') ~= nil and self.headline_date:is_deadline() then
+    return { hlgroup = hl_map.deadline_overed }
+  end
+
+  if string.find(self.headline_date:humanize(self.date), 'DEADLINE') ~= nil then
+
+
+    if self.headline:is_done() then
+      return { hlgroup = hl_map.deadline_done }
+    end
+
+
+    if string.find(self.headline_date:humanize(self.date), 'In ') ~= nil then
       return { hlgroup = hl_map.deadline_soon }
     end
 
@@ -238,7 +264,7 @@ function AgendaItem:_generate_highlight()
 
   if self.headline_date:is_deadline() then
     if self.headline:is_done() then
-      return { hlgroup = hl_map.ok }
+      return { hlgroup = hl_map.deadline_done }
     end
     if self.is_today and self.headline_date:is_after(self.date, 'day') then
       local diff = math.abs(self.date:diff(self.headline_date))
@@ -252,8 +278,17 @@ function AgendaItem:_generate_highlight()
   end
 
   if self.headline_date:is_scheduled() then
+
+    -- if string.find(self.headline_date:humanize(self.date), 'S%. %d+x') ~= nil then
+    --   return { hlgroup = hl_map.schedule_overed }
+    -- end
+
     if self.headline_date:is_past('day') and not self.headline:is_done() then
-      return { hlgroup = hl_map.warning }
+      return { hlgroup = hl_map.schedule_overed }
+    end
+
+    if self.has_deadline == false and not self.headline:is_done() then
+      return { hlgroup = hl_map.deadline_not_exist }
     end
 
     return { hlgroup = hl_map.ok }

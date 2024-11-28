@@ -346,6 +346,13 @@ function Agenda:set_range()
   })
 end
 
+function Agenda:set_deadline_range()
+  return self:_remote_edit({
+    action = 'org_mappings.org_set_deadline_range',
+    redo = true,
+  })
+end
+
 function Agenda:toggle_clock_report()
   self:_call_view('toggle_clock_report')
   return self:redo(true)
