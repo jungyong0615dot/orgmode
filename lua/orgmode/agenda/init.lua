@@ -53,6 +53,14 @@ function Agenda:agenda(opts)
   self:open_agenda_view(AgendaView, 'agenda', opts)
 end
 
+function Agenda:get_todos_list(opts)
+  local todos_view = AgendaTodosView:new(vim.tbl_deep_extend('force', opts or {}, {
+    filters = self.filters,
+  }))
+  todos_view:build()
+  return todos_view.items
+end
+
 -- TODO: Introduce searching ALL/DONE
 function Agenda:todos()
   self:open_agenda_view(AgendaTodosView, 'todos')
@@ -458,6 +466,24 @@ function Agenda:_remote_edit(opts)
     return self:_render(true)
   end)
 end
+
+function Agenda:remote_headless(item, opts)
+
+  local update = Files.update_file(item.file, function(_)
+    vim.fn.cursor({ item.file_position, 0 })
+    return Promise.resolve(require('orgmode').action(opts.action)):next(function()
+      return Files.get_closest_headline()
+    end)
+  end)
+  vim.print(update)
+
+  update:next(function(headline)
+    if item.agenda_item then
+      item.agenda_item:set_headline(headline)
+    end
+  end)
+end
+
 
 ---@return table|nil
 function Agenda:_get_jumpable_item()

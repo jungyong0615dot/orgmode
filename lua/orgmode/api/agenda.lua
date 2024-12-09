@@ -54,6 +54,16 @@ function OrgAgenda.todos(options)
   org.agenda:todos()
 end
 
+function OrgAgenda.list_todos(options)
+  options = options or {}
+  local org = orgmode.instance()
+  org:init()
+  if options.filters and options.filters ~= '' then
+    org.agenda.filters:parse(options.filters, true)
+  end
+  return org.agenda:get_todos_list()
+end
+
 ---@class OrgAgendaTagsOptions
 ---@field filters? OrgAgendaFilter
 ---@field todo_only? boolean
